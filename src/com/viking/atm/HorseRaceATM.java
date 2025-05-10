@@ -2,11 +2,6 @@ package com.viking.atm;
 
 import java.util.*;
 
-/**
- * Horse Track ATM Simulation
- * Created by Shefali Aggarwal
- */
-
 public class HorseRaceATM {
     private final List<Horse> horses = new ArrayList<>();
     private final Inventory inventory = new Inventory();
@@ -20,6 +15,8 @@ public class HorseRaceATM {
         horses.add(new Horse(5, "Real Princess", 3));
         horses.add(new Horse(6, "Pa Kettle", 5));
         horses.add(new Horse(7, "Gin Stinger", 6));
+
+        horses.get(0).setWinner(true);
     }
 
     public void start() {
@@ -30,9 +27,15 @@ public class HorseRaceATM {
             if (input.isEmpty()) continue;
 
             if (input.equalsIgnoreCase("q")) break;
-            else if (input.equalsIgnoreCase("r")) inventory.restock();
-            else if (input.toLowerCase().startsWith("w ")) setWinner(input);
-            else processBet(input);
+            else if (input.equalsIgnoreCase("r")) {
+                System.out.println(input);
+                inventory.restock();
+            } else if (input.toLowerCase().startsWith("w ")) {
+                System.out.println(input);
+                setWinner(input);
+            } else {
+                processBet(input);
+            }
 
             printStatus();
         }
@@ -41,7 +44,8 @@ public class HorseRaceATM {
     private void printStatus() {
         inventory.print();
         System.out.println("Horses:");
-        horses.forEach(System.out::println);
+        horses.forEach(h -> System.out.printf("%d,%s,%d,%s%n",
+                h.getNumber(), h.getName(), h.getOdds(), h.isWinner() ? "won" : "lost"));
     }
 
     private void setWinner(String input) {
@@ -68,12 +72,14 @@ public class HorseRaceATM {
 
         try {
             int horseNum = Integer.parseInt(parts[0]);
-            double bet = Double.parseDouble(parts[1]);
-            if (bet != (int) bet) {
-                System.out.println("Invalid Bet: " + parts[1]);
+            String betStr = parts[1];
+
+            if (betStr.contains(".") || !betStr.matches("\\d+")) {
+                System.out.println("Invalid Bet: " + betStr);
                 return;
             }
 
+            int betAmount = Integer.parseInt(betStr);
             Horse horse = getHorse(horseNum);
             if (horse == null) {
                 System.out.println("Invalid Horse Number: " + horseNum);
@@ -85,16 +91,16 @@ public class HorseRaceATM {
                 return;
             }
 
-            int payout = (int) bet * horse.getOdds();
+            int payout = betAmount * horse.getOdds();
             Map<Integer, Integer> payoutMap = new LinkedHashMap<>();
             if (inventory.dispense(payout, payoutMap)) {
                 System.out.println("Payout: " + horse.getName() + ",$" + payout);
                 System.out.println("Dispensing:");
-                payoutMap.forEach((k, v) -> System.out.println("$" + k + "," + v));
-            } else {
-                System.out.println("Insufficient Funds: $" + payout);
+                List<Integer> order = Arrays.asList(1, 5, 10, 20, 100);
+                for (int denom : order) {
+                    System.out.println("$" + denom + "," + payoutMap.getOrDefault(denom, 0));
+                }
             }
-
         } catch (NumberFormatException e) {
             System.out.println("Invalid Command: " + input);
         }

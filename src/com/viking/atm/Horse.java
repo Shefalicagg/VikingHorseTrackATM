@@ -1,10 +1,5 @@
 package com.viking.atm;
 
-/**
- * Horse Track ATM Simulation
- * Created by Shefali Aggarwal
- */
-
 public class Horse {
     private final int number;
     private final String name;
@@ -15,7 +10,7 @@ public class Horse {
         this.number = number;
         this.name = name;
         this.odds = odds;
-        this.isWinner = number == 1; // Horse 1 is winner by default
+        this.isWinner = number == 1;
     }
 
     public int getNumber() { return number; }
